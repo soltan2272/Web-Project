@@ -21,7 +21,7 @@
 
 <style>
     html,body{
-        background: url(../images/minimal-background-pattern-wordpress-1.jpg) no-repeat 0px 0px;
+       /* background: url(../images/minimal-background-pattern-wordpress-1.jpg) no-repeat 0px 0px;*/
     background-size: cover;
     -webkit-background-size: cover;
     -moz-background-size: cover;
@@ -67,6 +67,9 @@
                     @if(Auth::user()->hasRole('professor'))
                     <li>
                         <a href="/admin">Admin</a>
+                    </li>
+                    <li>
+                        <a href="/statics">Statistics</a>
                     </li>
                     @endif
                     <li>

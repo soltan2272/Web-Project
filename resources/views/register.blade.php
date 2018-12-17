@@ -6,6 +6,9 @@
     
 
         <h3>Sign Up!!</h3>
+        @if($stop_register==1)
+        <h3 color:red;> Oops!!! Registeration Closed !!!</h3>
+        @else
 
         <form method="post" action="/register">
             {{ csrf_field() }}
@@ -34,6 +37,7 @@
                 @foreach($errors->all() as $error)
                 {{ $error }} <br>
                 @endforeach
+                @endif
             </div>
 </div>
 

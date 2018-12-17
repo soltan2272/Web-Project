@@ -40,6 +40,8 @@ Route::group(['middleware'=>'roles', 'roles'=>['professor','student_aff']],funct
 Route::group(['middleware'=>'roles', 'roles'=>['professor']],function(){
     Route::get('admin','PagesController@admin');
     Route::post('add-role','PagesController@addrole');
+    Route::get('statics','PagesController@statics');
+    Route::post('/settings','PagesController@settings');
 
 });
 Route::group(['middleware'=>'roles', 'roles'=>['student','professor','student_aff']],function(){

@@ -46,6 +46,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(Like::class);
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
     use Notifiable;
 
     /**

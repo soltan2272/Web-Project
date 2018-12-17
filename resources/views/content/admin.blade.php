@@ -56,5 +56,16 @@ th {
 </table>
 </div>
 
+        <div>
+      <h3> Settings </h3>
+    <form method="post" action="/settings" enctype="multipart/form-data">
+    {{csrf_field()}}
+ Stop Comment: <input type="checkbox"  name="stop_comment" onchange="this.form.submit()" {{$stop_comment=='1'?'checked':' '}} ><br><br>
+ Stop Register: <input type="checkbox"  name="stop_register" onchange="this.form.submit()" {{$stop_register=='1'?'checked':' '}} >
+        </form>
+     </div>
+        </div>
+                
+
 </div>
 @stop

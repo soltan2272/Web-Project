@@ -5,35 +5,56 @@
 <meta id="token" name="token" content="{{csrf_token()}}">
 <div  class="container d-flex h-100">
 <div class="row justify-content-center align-self-center">
-@foreach($posts as $post)
-<h2 style=" color:brown;font-size:60px;"  class="glyphicon glyphicon-user"> {{ $post->pub_name }}  </h2>
-<h3>
-   
-<a style=" color:blue;font-size:40px;" href="/posts/{{$post->id}}">{{$post->title}}</a>
-</h3>
-
-
+        @foreach($posts as $post)
+        <div class="well">
+                <div class="media">
+                 <a class="pull-left" href="#">
+        </a>
+        
+    <h1 style=" color:brown;"  class="glyphicon glyphicon-user"> <a style=" color:black;">
+            <strong>  {{ $post->category->name }} </strong> 
+           <b> </a> {{ $post->pub_name }}  </h1><b>
+<h2>
+<b><a style=" color:blue;font-size:30px;" href="/posts/{{$post->id}}">{{$post->title}}</a></b>
+</h2>
 <p> 
    
-        <p><span style="font-size:30px;" class="glyphicon glyphicon-time"></span> Posted on {{$post->created_at->diffForHumans()}}
-       
-            <a style=" color:black;font-size:30px;">
-            <strong>  {{ $post->category->name }} </strong> 
-            </a>
+        <p><span style="font-size:30px;" class="glyphicon glyphicon-time"></span> Posted on {{$post->created_at->toDateTimeString()}}
+            <div class="media-body">
+                    
+                    <p style="font-size:20px;"><b> {{ $post->body }}</b></p>
+                    @if($post->url)
+                    <?php
+                    $t=explode('.',$post->url);
+                    ?>
+                    @if($t[1]=='jpg'||$t[1]=='png'||$t[1]=='gif'||$t[1]=='tif')
+                    <embed src="upload/{{$post->url}}" height="400" width="400"/><br>
+                        <a class="btn btn-primary" href="upload/{{$post->url}}" > Download Image </a>
+                    @else 
+                        <a class="btn btn-primary" href="upload/{{$post->url}}" > Download File </a>
+                    @endif</p>
+                    @endif
+                    <ul class="list-inline list-unstyled">
+                        <li><span><i class="glyphicon glyphicon-calendar"></i> {{$post->created_at->diffForHumans()}} </span></li>
+                      <li>|</li>
+                      @php
+                     $noc=0;
+                     foreach($post->comments as $comment)
+                      $noc++;
+                     @endphp
+                    <span><i class="glyphicon glyphicon-comment"></i> {{$noc}}comments</span>
+                      <li>
+                      
+                        <span><i class="fa fa-facebook-square"></i></span>
+                        <span><i class="fa fa-twitter-square"></i></span>
+                        <span><i class="fa fa-google-plus-square"></i></span>
+                      </li>
+                      </ul>
+                 </div>
         </p>
-        <p style="font-size:20px;"> {{ $post->body }}</p>
-        @if($post->url)
-        <?php
-        $t=explode('.',$post->url);
-        ?>
-        @if($t[1]=='jpg'||$t[1]=='png'||$t[1]=='gif'||$t[1]=='tif')
-        <embed src="upload/{{$post->url}}" height="400" width="400"/><br>
-            <a class="btn btn-primary" href="upload/{{$post->url}}" > Download Image </a>
-        @else 
-            <a class="btn btn-primary" href="upload/{{$post->url}}" > Download File </a>
-        @endif</p>
-        @endif
+       
 <hr>
+       
 @php
 $like_count=0;
 $dislike_count=0;
@@ -76,14 +97,31 @@ class="dislike btn {{$dislike_status}}" >Dislike
 
         @foreach($post->comments as $comment)
         <div class="comment">
+        <p>
+            <?php
+            $user_n='';
+            ?>
+      @foreach($users as $user)
+       @if($user->id==$comment->user_id)
+       @php
+           $user_n=$user->name;
+       @endphp
+       @endif
+      @endforeach
+      
+       <p> {{$user_n}} </p>
+         </p>
         <p span class="glyphicon glyphicon-time"> {{ $comment->created_at->diffForHumans() }} </p>
-         <p> {{ $comment->body }} </p>
+         <h4><p><b> {{ $comment->body }} </b></p></h4>
         </div>
         <br>
         @endforeach
     
     </div>
 
+    @if($stop_comment==1)
+    <h3 color:red;> Oops!!! Comments Closed !!!</h3>
+    @else
 <form method="post" action="/posts/{{$post->id}}/store" >
     {{csrf_field()}}
     <div class="form-group">
@@ -95,17 +133,31 @@ class="dislike btn {{$dislike_status}}" >Dislike
     </div>
   </form> 
   <br>
+  @endif
+ <?php 
+ $on=0;
+  $usr_id=Auth::user()->id;
+  $pst_id=$post->id;
+
+ ?>
+ @foreach ($post->comments as $comment)
+    @if($usr_id==$comment->user_id && $pst_id==$comment->post_id)
+    @php
+    $on=1;
+    @endphp
+    @endif
+ @endforeach
   @if(Auth::user()->hasRole('professor'))
 <a class="btn btn-danger" href="/posts/{{$post->id}}}"> Delete Post </a>
 <a class="btn btn-success" href="/posts/edit/{{$post->id}}"> Edit Post </a> <br>
 @endif
-<hr><hr>
-@endforeach
 
+                    
+              </div>
+            </div>
+    @endforeach
+        
 
-
-</div>
-</div>
 
  
 @stop

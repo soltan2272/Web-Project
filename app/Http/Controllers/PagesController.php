@@ -17,8 +17,9 @@ class PagesController extends Controller
 {
     public function posts()
     {
-      
+        $stop_comment=DB::table('settings')->where('name','stop_comment')->value('value');
         $posts=Post::all();
+        $users=User::all();
         $n=count($posts);
         $j=$n;
         $de=[];
@@ -28,7 +29,7 @@ class PagesController extends Controller
             $j--;
         }
         $posts=$de;
-        return view('content.posts',compact('posts'));
+        return view('content.posts',compact('posts','stop_comment','users'));
     }
     public function prof()
     {
@@ -40,11 +41,7 @@ class PagesController extends Controller
        
         return view('content.fileup');
     }
-    public function std_aff()
-    {
-        $posts=Post::all();
-        return view('content.std_aff');
-    }
+
 
     public function post(Post $post)
     {
@@ -116,7 +113,30 @@ class PagesController extends Controller
     public function admin()
     {
         $users=User::all();
-      return view('content.admin',compact('users'));
+        $stop_comment=DB::table('settings')->where('name','stop_comment')->value('value');
+        $stop_register=DB::table('settings')->where('name','stop_register')->value('value');
+      return view('content.admin',compact('users','stop_comment','stop_register'));
+    }
+
+    public function settings(Request $request)
+    {
+           if($request->stop_comment)
+           {
+               Db::table('settings')->where('name','stop_comment')->update(['value'=>1]);
+           }
+           else{
+            Db::table('settings')->where('name','stop_comment')->update(['value'=>0]);
+           }
+
+           if($request->stop_register)
+           {
+               Db::table('settings')->where('name','stop_register')->update(['value'=>1]);
+           }
+           else{
+            Db::table('settings')->where('name','stop_register')->update(['value'=>0]);
+           }
+
+           return redirect()->back();
     }
 
     public function addrole(Request $request)
@@ -250,6 +270,91 @@ class PagesController extends Controller
       $post->body= $request->body;
       $post->save();
       return redirect('/posts');
+    }
+
+    public function statics()
+    {
+        $users=DB::table('users')->count();
+        $posts=DB::table('posts')->count();
+        $comments=DB::table('comments')->count();
+        
+        //user_1 most comments
+        $most_commets_user= User::withCount('comments')
+        ->orderBy('comments_count','desc')
+        ->first();
+
+        $likes_count_1=DB::table('likes')->where('user_id',$most_commets_user->id)->count();
+        $user_1_count=$most_commets_user->comments_count+$likes_count_1;
+
+        //user_2 most likes
+        $most_likes_user= User::withCount('likes')
+        ->orderBy('likes_count','desc')
+        ->first();
+        $comments_count_2=DB::table('comments')->where('user_id',$most_likes_user->id)->count();
+        $user_2_count=$most_likes_user->likes_count+$comments_count_2;
+
+        if($user_1_count>$user_2_count)
+        {
+            $acive_user=$most_commets_user->name;
+            $acive_user_likes=$likes_count_1;
+            $acive_user_comments=$most_commets_user->comments_count;
+        }
+        else
+        {
+            $acive_user=$most_likes_user->name;
+            $acive_user_likes=$most_likes_user->likes_count;
+            $acive_user_comments=$comments_count_2;
+        }
+ 
+        /////////////////////////////////////////////////////////////////////////////////////
+        //user_1 most comments
+        $most_commets_user_p= Post::withCount('comments')
+        ->orderBy('comments_count','desc')
+        ->first();
+
+        $likes_count_1_p=DB::table('likes')->where('post_id',$most_commets_user_p->id)->count();
+        $user_1_count_p=$most_commets_user_p->comments_count+$likes_count_1_p;
+
+        //user_2 most likes
+        $most_likes_user_p= Post::withCount('likes')
+        ->orderBy('likes_count','desc')
+        ->first();
+        $comments_count_2_p=DB::table('comments')->where('user_id',$most_likes_user_p->id)->count();
+        $user_2_count_p=$most_likes_user_p->likes_count+$comments_count_2_p;
+
+        if($user_1_count_p>$user_2_count_p)
+        {
+            $acive_post_title=$most_commets_user_p->title;
+            $acive_post_body=$most_commets_user_p->body;
+            $acive_post_url=$most_commets_user_p->url;
+            $acive_post_likes=$likes_count_1_p;
+            $acive_post_comments=$most_commets_user_p->comments_count;
+        }
+        else
+        {
+            $acive_post_title=$most_likes_user_p->title;
+            $acive_post_body=$most_likes_user_p->body;
+            $acive_post_url=$most_likes_user_p->url;
+            $acive_post_likes=$most_likes_user_p->likes_count;
+            $acive_post_comments=$comments_count_2;
+        }
+
+     
+        $statics=array(
+            'users'=>$users,
+            'posts'=>$posts,
+            'comments'=>$comments,
+            'acive_user'=>$acive_user,
+            'acive_user_likes'=>$acive_user_likes,
+            'acive_user_comments'=>$acive_user_comments,
+            'acive_post_title'=>$acive_post_title,
+            'acive_post_body'=>$acive_post_body,
+            'acive_post_url'=>$acive_post_url,
+            'acive_post_likes'=>$acive_post_likes,
+            'acive_post_comments'=>$acive_post_comments,
+        );
+
+        return view('content.statics',compact('statics'));
     }
 
 }

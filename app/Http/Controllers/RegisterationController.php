@@ -6,12 +6,14 @@ use Illuminate\Http\Request;
 
 use App\User;
 use App\Role;
+use DB;
 
 class RegisterationController extends Controller
 {
     public function create()
     {
-        return view('register');
+        $stop_register=DB::table('settings')->where('name','stop_register')->value('value');
+        return view('register',compact('stop_register'));
     }
     public function store(Request $request)
     {
